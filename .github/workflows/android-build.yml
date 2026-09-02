@@ -1,0 +1,120 @@
+name: Android Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: Build variant
+        required: true
+        default: release
+        type: choice
+        options:
+          - debug
+          - release
+          - release_mini
+          - all
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.build_type }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ${{ fromJSON(inputs.build_type == 'all' && '["debug","release","release_mini"]' || format('["{0}"]', inputs.build_type)) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Modern Android command-line tools require JDK 17+.
+      - name: Set up Java 17 for Android SDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK packages
+        run: sdkmanager "platforms;android-28" "build-tools;28.0.3"
+
+      # This project uses the legacy AGP 4.0.1 / Gradle 6.1.1 toolchain,
+      # which requires Java 8.
+      - name: Set up Java 8 for Gradle build
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Restore Android signing keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || {
+            echo "ANDROID_KEYSTORE_BASE64 repository secret is required" >&2
+            exit 1
+          }
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build APK
+        run: ./gradlew --no-daemon --stacktrace "assemble${{ matrix.build_type == 'debug' && 'Debug' || matrix.build_type == 'release' && 'Release' || 'Release_mini' }}"
+
+      - name: Locate APK
+        id: apk
+        shell: bash
+        run: |
+          apk="$(find pio/build/outputs/apk -type f -name '*.apk' | head -n 1)"
+          test -n "$apk" || { echo "No APK produced" >&2; exit 1; }
+          echo "path=$apk" >> "$GITHUB_OUTPUT"
+          echo "APK: $apk"
+
+      - name: Sign APK with release keystore
+        env:
+          KEYSTORE: ${{ runner.temp }}/release.keystore
+          STORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          apksigner="${ANDROID_HOME}/build-tools/28.0.3/apksigner"
+          test -x "$apksigner" || { echo "apksigner not found: $apksigner" >&2; exit 1; }
+          "$apksigner" sign \
+            --ks "$KEYSTORE" \
+            --ks-pass "pass:$STORE_PASSWORD" \
+            --ks-key-alias "$KEY_ALIAS" \
+            --key-pass "pass:$KEY_PASSWORD" \
+            "${{ steps.apk.outputs.path }}"
+          "$apksigner" verify --verbose "${{ steps.apk.outputs.path }}"
+
+      - name: Upload APK to GoFile
+        id: gofile
+        uses: ahnafnafee/action-upload-gofile@v3.0.0
+        with:
+          token: ${{ secrets.GOFILE_TOKEN }}
+          file: ${{ steps.apk.outputs.path }}
+
+      - name: Add download link to job summary
+        env:
+          GOFILE_URL: ${{ steps.gofile.outputs.url }}
+          APK_PATH: ${{ steps.apk.outputs.path }}
+        run: |
+          {
+            echo "## Android build: \`${{ matrix.build_type }}\`"
+            echo
+            echo "**Signed APK:** \`$(basename "$APK_PATH")\`"
+            echo
+            echo "### Download"
+            echo "[Download APK]($GOFILE_URL)"
+          } >> "$GITHUB_STEP_SUMMARY"
