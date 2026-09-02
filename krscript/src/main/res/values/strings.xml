@@ -50,4 +50,8 @@
     <string name="picker_not_item">No options available!</string>
     <string name="picker_select_none">Nothing selected!</string>
     <string name="xml_config_parse_failed">Failed to parse configuration file</string>
+    <string name="kr_log_running">RUNNING</string>
+    <string name="kr_log_done">DONE</string>
+    <string name="kr_log_failed">FAILED</string>
+    <string name="kr_log_extracting">Extracting • %1$s%%</string>
 </resources>
