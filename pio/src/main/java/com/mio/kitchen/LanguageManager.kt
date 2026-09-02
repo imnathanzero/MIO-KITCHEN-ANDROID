@@ -13,8 +13,7 @@ object LanguageManager {
     const val JAPANESE = "ja"
 
     fun apply(context: Context): Context {
-        val language = getLanguage(context)
-        return updateResources(context, language)
+        return updateResources(context, getLanguage(context))
     }
 
     fun setLanguage(context: Context, language: String) {
@@ -41,6 +40,7 @@ object LanguageManager {
         val configuration = Configuration(context.resources.configuration)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             configuration.setLocale(locale)
+            configuration.setLocales(android.os.LocaleList(locale))
         } else {
             @Suppress("DEPRECATION")
             configuration.locale = locale
