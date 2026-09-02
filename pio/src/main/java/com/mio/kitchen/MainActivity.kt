@@ -3,6 +3,7 @@ package com.mio.kitchen
 import android.Manifest
 import android.app.Activity
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -43,6 +44,10 @@ class MainActivity : AppCompatActivity() {
     private val progressBarDialog = ProgressBarDialog(this)
     private var handler = Handler()
     private var krScriptConfig = KrScriptConfig()
+
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LanguageManager.apply(newBase))
+    }
 
     private fun checkPermission(permission: String): Boolean = PermissionChecker.checkSelfPermission(this, permission) == PermissionChecker.PERMISSION_GRANTED
 
@@ -109,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             items = PageConfigSh(this, pageNode.pageConfigSh, null).execute()
         }
         if (items == null && pageNode.pageConfigPath.isNotEmpty()) {
-            items = PageConfigReader(this.applicationContext, pageNode.pageConfigPath, null).readConfigXml()
+            items = PageConfigReader(this, pageNode.pageConfigPath, null).readConfigXml()
         }
 
         return items
