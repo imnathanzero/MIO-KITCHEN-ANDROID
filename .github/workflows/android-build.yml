@@ -30,7 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Modern Android command-line tools require JDK 17+.
       - name: Set up Java 17 for Android SDK
         uses: actions/setup-java@v4
         with:
@@ -43,8 +42,6 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-28" "build-tools;28.0.3"
 
-      # This project uses the legacy AGP 4.0.1 / Gradle 6.1.1 toolchain,
-      # which requires Java 8.
       - name: Set up Java 8 for Gradle build
         uses: actions/setup-java@v4
         with:
@@ -68,18 +65,23 @@ jobs:
             exit 1
           }
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+          chmod 600 "$RUNNER_TEMP/release.keystore"
 
       - name: Build APK
         run: ./gradlew --no-daemon --stacktrace "assemble${{ matrix.build_type == 'debug' && 'Debug' || matrix.build_type == 'release' && 'Release' || 'Release_mini' }}"
 
-      - name: Locate APK
+      - name: Locate exact APK
         id: apk
         shell: bash
         run: |
-          apk="$(find pio/build/outputs/apk -type f -name '*.apk' | head -n 1)"
-          test -n "$apk" || { echo "No APK produced" >&2; exit 1; }
-          echo "path=$apk" >> "$GITHUB_OUTPUT"
-          echo "APK: $apk"
+          case "${{ matrix.build_type }}" in
+            debug) expected="pio/build/outputs/apk/debug/pio-debug.apk" ;;
+            release) expected="pio/build/outputs/apk/release/pio-release-unsigned.apk" ;;
+            release_mini) expected="pio/build/outputs/apk/release_mini/pio-release_mini-unsigned.apk" ;;
+          esac
+          test -f "$expected" || { echo "Expected APK not found: $expected" >&2; find pio/build/outputs/apk -type f -name '*.apk' -print >&2; exit 1; }
+          echo "path=$expected" >> "$GITHUB_OUTPUT"
+          echo "APK: $expected"
 
       - name: Sign APK with release keystore
         env:
@@ -95,25 +97,26 @@ jobs:
             --ks-pass "pass:$STORE_PASSWORD" \
             --ks-key-alias "$KEY_ALIAS" \
             --key-pass "pass:$KEY_PASSWORD" \
+            --out "$RUNNER_TEMP/mio-kitchen-${{ matrix.build_type }}-signed.apk" \
             "${{ steps.apk.outputs.path }}"
-          "$apksigner" verify --verbose "${{ steps.apk.outputs.path }}"
+          "$apksigner" verify --verbose "$RUNNER_TEMP/mio-kitchen-${{ matrix.build_type }}-signed.apk"
+          echo "Verified signed APK"
 
-      - name: Upload APK to GoFile
+      - name: Upload signed APK to GoFile
         id: gofile
         uses: ahnafnafee/action-upload-gofile@v3.0.0
         with:
           token: ${{ secrets.GOFILE_TOKEN }}
-          file: ${{ steps.apk.outputs.path }}
+          file: ${{ runner.temp }}/mio-kitchen-${{ matrix.build_type }}-signed.apk
 
       - name: Add download link to job summary
         env:
           GOFILE_URL: ${{ steps.gofile.outputs.url }}
-          APK_PATH: ${{ steps.apk.outputs.path }}
         run: |
           {
             echo "## Android build: \`${{ matrix.build_type }}\`"
             echo
-            echo "**Signed APK:** \`$(basename "$APK_PATH")\`"
+            echo "**Signed APK:** \`mio-kitchen-${{ matrix.build_type }}-signed.apk\`"
             echo
             echo "### Download"
             echo "[Download APK]($GOFILE_URL)"
