@@ -2,26 +2,21 @@
     <!-- Default language: English -->
     <string name="kr_script_config">mio.conf</string>
     <bool name="force_root">false</bool>
-
     <string name="app_name">MIO-KITCHEN</string>
     <string name="btn_exit">Dismiss</string>
     <string name="please_wait">Just a second</string>
     <string name="title_activity_action_page">Action Page</string>
-
     <string name="author_name" translatable="false">寒风居士</string>
     <string name="about_title">About - MIO-KITCHEN</string>
     <string name="appliction_desc">The Free-forever Android ROM tool</string>
     <string name="appliction_name">MIO-KITCHEN</string>
     <string name="appliction_author">Brought to you by: ColdWindScholar</string>
     <string name="engine_version_name">Based on [Kr-Script4.0.3]</string>
-
     <string name="tab_home">Home</string>
     <string name="tab_favorites">Favorites</string>
     <string name="tab_pages">All</string>
-
     <string name="copy_success">Copied</string>
     <string name="btn_retry">Retry</string>
-
     <string name="pio_starting">Starting up</string>
     <string name="pop_before_start">APP is starting soon...</string>
     <string name="pop_started">Done!</string>
@@ -36,7 +31,6 @@
     <string name="file_selector_start_failed">Failed to start the built-in file selector!</string>
     <string name="file_read_permission_denied">File read permission was denied.</string>
     <string name="file_list_failed">Failed to read the file list.</string>
-
     <string name="power_shutdown_cmd" translatable="false">sync;svc power shutdown || reboot -p;</string>
     <string name="power_reboot_cmd" translatable="false">sync;svc power reboot || reboot;</string>
     <string name="power_hot_reboot_cmd" translatable="false">sync;am restart || busybox killall system_server;</string>
@@ -69,10 +63,65 @@
     <string name="now_loading">Now loading...</string>
     <string name="directory_is_empty">This directory is empty!</string>
     <string name="confirm_select_directory">The following directory will be selected:</string>
-
     <string name="language">Language</string>
     <string name="language_english">English</string>
     <string name="language_chinese">简体中文</string>
     <string name="language_japanese">日本語</string>
     <string name="language_changed">Language changed. Restarting...</string>
+
+    <string name="mio_group_modules">Module Tools</string>
+    <string name="mio_modules">Modules</string>
+    <string name="mio_modules_desc">Install MPK modules</string>
+    <string name="mio_group_extract">Extraction</string>
+    <string name="mio_extract_rom">Extract ROM</string>
+    <string name="mio_unpack_br">Unpack BR</string>
+    <string name="mio_delete_source">Delete source file</string>
+    <string name="mio_choose_br">Select BR files (multiple allowed):</string>
+    <string name="mio_unpack_dat">Unpack DAT</string>
+    <string name="mio_choose_dat">Select DAT files (multiple allowed):</string>
+    <string name="mio_project_file_detect">Detect files in the MIO project path</string>
+    <string name="mio_extract_super_payload">Extract super/payload</string>
+    <string name="mio_full_disk_extract">Extract entire disk</string>
+    <string name="mio_choose_image">Select images to extract</string>
+    <string name="mio_choose_partition">Select partitions to extract</string>
+    <string name="mio_auto_detect">Auto detect</string>
+    <string name="mio_auto">Auto</string>
+    <string name="mio_unpack_img">Unpack IMG</string>
+    <string name="mio_choose_img">Select IMG files (multiple allowed):</string>
+    <string name="mio_project_img_detect">Detect IMG files in the MIO project path and extract automatically</string>
+    <string name="mio_group_pack">Packaging</string>
+    <string name="mio_pack_image">Pack image</string>
+    <string name="mio_multi_pack_detect">Multiple images supported; format is detected automatically</string>
+    <string name="mio_pack_method">Pack method</string>
+    <string name="mio_ext4_only">Only effective for ext4</string>
+    <string name="mio_image_compression">Image compression</string>
+    <string name="mio_erofs_ext_convert">Convert EROFS-Ext while packing</string>
+    <string name="mio_fix_build">Fix build</string>
+    <string name="mio_boot_only">Only effective when packing boot</string>
+    <string name="mio_partition_rw">Partition access</string>
+    <string name="mio_read_only">Read-only</string>
+    <string name="mio_read_write">Read-write</string>
+    <string name="mio_pack_size">Pack size</string>
+    <string name="mio_auto_size">Calculate size automatically</string>
+    <string name="mio_original_img_size">Original IMG size</string>
+    <string name="mio_pack_format">Pack format</string>
+    <string name="mio_ext4_erofs_only">Only effective for ext4 and EROFS</string>
+    <string name="mio_erofs_compression_level">EROFS compression level</string>
+    <string name="mio_erofs_only">Only effective when packing EROFS</string>
+    <string name="mio_erofs_compression">EROFS compression method</string>
+    <string name="mio_pack_super">Pack super.img</string>
+    <string name="mio_pack_type">Pack type</string>
+    <string name="mio_super_size">Total super.img size</string>
+    <string name="mio_super_size_desc">Default: 12884901888 bytes</string>
+    <string name="mio_dynamic_group">Dynamic partition group name</string>
+    <string name="mio_dynamic_group_desc">Use an appropriate size</string>
+    <string name="mio_choose_img_pack">Select IMG files to pack:</string>
+    <string name="mio_unsupported_image_warning">Do not select unsupported images</string>
+    <string name="mio_group_convert">Format Conversion</string>
+    <string name="mio_img_convert">IMG conversion</string>
+    <string name="mio_convert_format">Conversion format</string>
+    <string name="mio_erofs_no_convert">EROFS images cannot be converted</string>
+    <string name="mio_br_level">BR compression level</string>
+    <string name="mio_zstd_level">ZSTD compression level</string>
+    <string name="mio_compression_tradeoff">Higher values compress more slowly. Choose as needed.</string>
 </resources>
