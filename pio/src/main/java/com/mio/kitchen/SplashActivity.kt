@@ -20,6 +20,10 @@ import java.io.BufferedReader
 import java.io.DataOutputStream
 
 class SplashActivity : Activity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LanguageManager.apply(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
