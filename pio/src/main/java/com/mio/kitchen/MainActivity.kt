@@ -58,7 +58,6 @@ class MainActivity : AppCompatActivity() {
 
         krScriptConfig = KrScriptConfig()
 
-
         main_tabhost.setup()
         val tabIconHelper = TabIconHelper(main_tabhost, this)
 
@@ -97,8 +96,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }).start()
-
-
 
         if (!(checkPermission(Manifest.permission.READ_EXTERNAL_STORAGE) && checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE))) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE), 111)
@@ -146,7 +143,6 @@ class MainActivity : AppCompatActivity() {
     private fun reloadMoreTab() {
         Thread(Runnable {
             val page2Config = krScriptConfig.pageListConfig
-
             getItems(page2Config)?.run {
                 handler.post {
                     updateMoreTab(this, page2Config)
@@ -158,7 +154,7 @@ class MainActivity : AppCompatActivity() {
     private fun getKrScriptActionHandler(pageNode: PageNode, isFavoritesTab: Boolean): KrScriptActionHandler {
         return object : KrScriptActionHandler {
             override fun onActionCompleted(runnableNode: RunnableNode) {
-                if (runnableNode.autoFinish ) {
+                if (runnableNode.autoFinish) {
                     finishAndRemoveTask()
                 } else if (runnableNode.reloadPage) {
                     // TODO:多线程优化
@@ -174,7 +170,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 val intent = Intent()
-
                 intent.component = ComponentName(this@MainActivity.applicationContext, ActionPage::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
@@ -183,7 +178,6 @@ class MainActivity : AppCompatActivity() {
                     intent.putExtra("autoRunItemId", clickableNode.key)
                 }
                 intent.putExtra("page", page)
-
                 addToFavoritesHandler.onAddToFavorites(clickableNode, intent)
             }
 
@@ -207,7 +201,7 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("extension", extension)
             startActivityForResult(intent, ACTION_FILE_PATH_CHOOSER_INNER)
         } catch (ex: java.lang.Exception) {
-            Toast.makeText(this, getString(R.string.internal_file_selector_failed), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Failed to start the built-in file selector!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -224,7 +218,7 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     val intent = Intent(Intent.ACTION_GET_CONTENT)
                     intent.type = fileSelectedInterface.mimeType()
-                    if (intent.type == null) {intent.type = "*/*"}
+                    if (intent.type == null) { intent.type = "*/*" }
                     intent.addCategory(Intent.CATEGORY_OPENABLE)
                     startActivityForResult(intent, ACTION_FILE_PATH_CHOOSER)
                 }
@@ -244,7 +238,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 fileSelectedInterface?.onFileSelected(null)
             }
-
             this.fileSelectedInterface = null
         } else if (requestCode == ACTION_FILE_PATH_CHOOSER_INNER) {
             val absPath = if (data == null || resultCode != Activity.RESULT_OK) null else data.getStringExtra("file")
@@ -308,6 +301,7 @@ class MainActivity : AppCompatActivity() {
             false
         }
     }
+
     private fun juanzen(): Boolean {
         val intent = Intent()
         intent.setData(Uri.parse("wxp://f2f0aLQl5w5FtoV2_xBiJKG8oZsXqsCFIn1HUaYTW2PNpPDZBD13d_09gfCY1HtsAVah"))
@@ -318,6 +312,7 @@ class MainActivity : AppCompatActivity() {
             false
         }
     }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.option_menu_language -> {
@@ -351,13 +346,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 transparentUi.isChecked = themeConfig.getAllowTransparentUI()
-
                 DialogHelper.customDialog(this, layout)
             }
             R.id.option_menu_reboot -> {
                 DialogPower(this).showPowerMenu()
             }
-
         }
         return super.onOptionsItemSelected(item)
     }
