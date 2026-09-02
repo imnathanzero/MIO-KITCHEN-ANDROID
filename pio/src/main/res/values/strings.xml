@@ -1,39 +1,37 @@
 <resources>
-    <!--重要内容，谨慎修改-->
+    <!-- Default language: English -->
     <string name="kr_script_config">mio.conf</string>
-
-    <!--是否强制获取ROOT-->
     <bool name="force_root">false</bool>
 
     <string name="app_name">MIO-KITCHEN</string>
-    <string name="btn_exit">退出</string>
-    <string name="please_wait">请稍等</string>
-    <string name="title_activity_action_page">功能分页</string>
+    <string name="btn_exit">Dismiss</string>
+    <string name="please_wait">Just a second</string>
+    <string name="title_activity_action_page">Action Page</string>
 
     <string name="author_name" translatable="false">寒风居士</string>
-    <string name="about_title">关于 · MIO-KITCHEN</string>
-    <string name="appliction_desc">永久免费的安卓ROM工具</string>
+    <string name="about_title">About - MIO-KITCHEN</string>
+    <string name="appliction_desc">The Free-forever Android ROM tool</string>
     <string name="appliction_name">MIO-KITCHEN</string>
-    <string name="appliction_author">作者：ColdWindScholar</string>
-    <string name="engine_version_name">基于[Kr-Script4.0.3]创作</string>
+    <string name="appliction_author">Brought to you by: ColdWindScholar</string>
+    <string name="engine_version_name">Based on [Kr-Script4.0.3]</string>
 
-    <string name="tab_home">首页</string>
-    <string name="tab_favorites">收藏夹</string>
-    <string name="tab_pages">全部</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_favorites">Favorites</string>
+    <string name="tab_pages">All</string>
 
-    <string name="copy_success">复制成功</string>
-    <string name="btn_retry">重试</string>
+    <string name="copy_success">Copied</string>
+    <string name="btn_retry">Retry</string>
 
-    <string name="pio_starting">正在启动</string>
-    <string name="pop_before_start">正准备启动应用…</string>
-    <string name="pop_started">启动完成！</string>
-    <string name="pio_permission_checking">检查并获取必需权限……</string>
-    <string name="error_root">未能获得ROOT授权，如果你的手机已经ROOT，请在授权管理器弹出对话框时选择允许！</string>
-    <string name="warn_">警告</string>
-    <string name="error_su_timeout">等待ROOT授权超时，请检查授权管理器是否在后台运行！</string>
-    <string name="transparent_ui">界面透明 </string>
-    <string name="title_activity_file_selector">请选择文件</string>
-    <string name="title_activity_folder_selector">请长按选择目录</string>
+    <string name="pio_starting">Starting up</string>
+    <string name="pop_before_start">APP is starting soon...</string>
+    <string name="pop_started">Done!</string>
+    <string name="pio_permission_checking">Checking and requesting required permissions...</string>
+    <string name="error_root">Your device is not ROOTED. If your device is already ROOTED, make sure you have granted SuperUser access to this app in the pop-up dialog.</string>
+    <string name="warn_">Warning</string>
+    <string name="error_su_timeout">Waiting for ROOT authorization timed out. Please check whether your root manager is running in the background.</string>
+    <string name="transparent_ui">Transparent background</string>
+    <string name="title_activity_file_selector">Choose a file</string>
+    <string name="title_activity_folder_selector">Hold to select directory</string>
 
     <string name="power_shutdown_cmd" translatable="false">sync;svc power shutdown || reboot -p;</string>
     <string name="power_reboot_cmd" translatable="false">sync;svc power reboot || reboot;</string>
@@ -43,28 +41,34 @@
     <string name="power_emergency_cmd" translatable="false">sync;reboot edl;</string>
     <string name="todo" translatable="false">TODO</string>
     <string name="mio_kitchen" translatable="false">MIO-KITCHEN</string>
-    <string name="join_qq_group">加入QQ群</string>
-    <string name="support_us">捐赠我们</string>
-    <string name="power_off">关机</string>
-    <string name="desc_power_off">正常关机</string>
-    <string name="reboot_system">重启</string>
-    <string name="desc_reboot_system">正常重启</string>
-    <string name="restart_system_ui">热重启</string>
-    <string name="desc_restart_system_ui">只重启系界面而不重新引导系统（可能引发Bug）</string>
-    <string name="reboot_recovery">Recovery</string>
-    <string name="desc_reboot_recovery">重启到Recovery模式（俗称卡刷模式）</string>
-    <string name="reboot_fastboot">Fastboot</string>
-    <string name="desc_reboot_fastboot">重启到Fastboot模式（俗称USB线刷模式）</string>
-    <string name="reboot_edl">9008(EDL)</string>
-    <string name="desc_reboot_edl">重启到9008模式，*此模式仅限部分骁龙设备可用</string>
-    <string name="select_action">选择操作</string>
-    <string name="thanks_for_your_support">感谢捐赠！</string>
-    <string name="wechat_is_not_installed">未安装微信或安装的版本不支持</string>
-    <string name="redirected_to_qq">已进入QQ</string>
-    <string name="qq_is_not_installed">未安装手Q或安装的版本不支持</string>
-    <string name="confirm_file_selection">选定文件？</string>
-    <string name="selected_file_gone">所选的文件已被删除，请重新选择！</string>
-    <string name="now_loading">加载中...</string>
-    <string name="directory_is_empty">该目录下没有文件！</string>
-    <string name="confirm_select_directory">选定目录？</string>
+    <string name="join_qq_group">QQ group</string>
+    <string name="support_us">Support Us</string>
+    <string name="power_off">Power Off</string>
+    <string name="desc_power_off">Shutdown normally</string>
+    <string name="reboot_system">Reboot</string>
+    <string name="desc_reboot_system">Restart normally</string>
+    <string name="restart_system_ui">Restart SystemUI</string>
+    <string name="desc_restart_system_ui">Only restart SystemUI, faster (Might cause issues)</string>
+    <string name="reboot_recovery">Reboot to Recovery</string>
+    <string name="desc_reboot_recovery">Restart to Recovery mode (e.g TWRP, etc.)</string>
+    <string name="reboot_fastboot">Reboot to Fastboot</string>
+    <string name="desc_reboot_fastboot">Restart to Fastboot mode (aka the Bootloader)</string>
+    <string name="reboot_edl">Reboot to EDL</string>
+    <string name="desc_reboot_edl">Restart to Download mode (*This only works on some Qualcomm devices)</string>
+    <string name="select_action">Select an Action</string>
+    <string name="thanks_for_your_support">Thanks for your support!</string>
+    <string name="wechat_is_not_installed">WeChat is not installed</string>
+    <string name="redirected_to_qq">Redirected to QQ</string>
+    <string name="qq_is_not_installed">QQ is not installed</string>
+    <string name="confirm_file_selection">The following file will be selected:</string>
+    <string name="selected_file_gone">The selected file is moved or deleted, please select again!</string>
+    <string name="now_loading">Now loading...</string>
+    <string name="directory_is_empty">This directory is empty!</string>
+    <string name="confirm_select_directory">The following directory will be selected:</string>
+
+    <string name="language">Language</string>
+    <string name="language_english">English</string>
+    <string name="language_chinese">简体中文</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_changed">Language changed. Restarting...</string>
 </resources>
