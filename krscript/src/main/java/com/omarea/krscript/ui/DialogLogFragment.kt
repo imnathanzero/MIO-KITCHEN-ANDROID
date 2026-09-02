@@ -9,6 +9,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Message
 import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,13 +29,12 @@ import kotlinx.android.synthetic.main.kr_dialog_log.btn_exit
 import kotlinx.android.synthetic.main.kr_dialog_log.btn_hide
 import kotlinx.android.synthetic.main.kr_dialog_log.desc
 import kotlinx.android.synthetic.main.kr_dialog_log.shell_output
+import kotlinx.android.synthetic.main.kr_dialog_log.status
 import kotlinx.android.synthetic.main.kr_dialog_log.title
 
 
 class DialogLogFragment : androidx.fragment.app.DialogFragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        // val view = inflater.inflate(R.layout.kr_dialog_log, container, false)
-
         currentView = inflater.inflate(R.layout.kr_dialog_log, container)
         return currentView
     }
@@ -65,7 +66,6 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
         super.onActivityCreated(savedInstanceState)
         if (nodeInfo != null) {
             nodeInfo?.run {
-                // 如果执行完以后需要刷新界面，那么就不允许隐藏日志窗口到后台执行
                 if (reloadPage) {
                     btn_hide.visibility = View.GONE
                 }
@@ -124,6 +124,7 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
             desc.visibility = View.GONE
         }
 
+        status.text = getString(R.string.kr_log_running)
         action_progress.isIndeterminate = true
         return MyShellHandler(object : IActionEventHandler {
             override fun onCompleted() {
@@ -136,6 +137,7 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
                     action_progress.visibility = View.GONE
                 }
 
+                status.text = getString(if (hasError()) R.string.kr_log_failed else R.string.kr_log_done)
                 isCancelable = true
             }
 
@@ -147,6 +149,7 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
 
             override fun onStart(forceStop: Runnable?) {
                 running = true
+                status.text = getString(R.string.kr_log_running)
 
                 if (nodeInfo.interruptable && forceStop != null) {
                     btn_exit.visibility = View.VISIBLE
@@ -158,6 +161,12 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
 
         }, shell_output, action_progress)
     }
+
+    private fun hasError(): Boolean {
+        return shellOutputHandler?.hasError() == true
+    }
+
+    private var shellOutputHandler: MyShellHandler? = null
 
     @FunctionalInterface
     interface IActionEventHandler {
@@ -185,19 +194,26 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
         private val scriptColor = getColor(R.color.kr_shell_log_script)
         private val endColor = getColor(R.color.kr_shell_log_end)
 
-        private var hasError = false // 执行过程是否出现错误
+        private var hasError = false
+        private val outputBuffer = SpannableStringBuilder()
+        private var lastProgressLength = 0
+        private var lastProgressActive = false
+
+        companion object {
+            private const val MAX_OUTPUT_CHARS = 60000
+            private val ANSI_PATTERN = Regex("(?:\\u001B)?\\[[0-?]*[ -/]*[@-~]")
+            private val PERCENT_PATTERN = Regex("(\\d+(?:\\.\\d+)?)\\s*%")
+        }
+
+        fun hasError(): Boolean = hasError
 
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 EVENT_EXIT -> onExit(msg.obj)
-                EVENT_START -> {
-                    onStart(msg.obj)
-                }
+                EVENT_START -> onStart(msg.obj)
                 EVENT_REDE -> onReaderMsg(msg.obj)
                 EVENT_READ_ERROR -> onError(msg.obj)
-                EVENT_WRITE -> {
-                    onWrite(msg.obj)
-                }
+                EVENT_WRITE -> onWrite(msg.obj)
             }
         }
 
@@ -236,11 +252,13 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
 
         override fun onStart(msg: Any?) {
             this.logView.text = ""
-            // updateLog(msg, scriptColor)
+            outputBuffer.clear()
+            lastProgressLength = 0
+            lastProgressActive = false
         }
 
         override fun onExit(msg: Any?) {
-            updateLog(context.getString(R.string.kr_shell_completed), endColor)
+            updateLog(context.getString(if (hasError) R.string.kr_shell_finish_error else R.string.kr_shell_completed), endColor)
             actionEventHandler.onCompleted()
             if (!hasError) {
                 actionEventHandler.onSuccess()
@@ -249,10 +267,75 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
 
         override fun updateLog(msg: SpannableString?) {
             if (msg != null) {
+                val spans = msg.getSpans(0, msg.length, ForegroundColorSpan::class.java)
+                val color = if (spans.isNotEmpty()) spans[0].foregroundColor else basicColor
+                val cleaned = ANSI_PATTERN.replace(msg.toString(), "")
+                    .replace("\r", "")
+                    .replace("\u0008", "")
+
+                if (cleaned.isBlank()) {
+                    return
+                }
+
                 this.logView.post {
-                    logView.append(msg)
+                    appendCleanOutput(cleaned, color)
+                    logView.text = outputBuffer
                     (logView.parent as ScrollView).fullScroll(ScrollView.FOCUS_DOWN)
                 }
+            }
+        }
+
+        private fun appendCleanOutput(text: String, color: Int) {
+            val lines = text.split('\n')
+            for (rawLine in lines) {
+                val line = rawLine.trimEnd()
+                if (line.isBlank()) continue
+
+                val progressMatch = if (line.contains("Extract:", ignoreCase = true)) {
+                    PERCENT_PATTERN.find(line)
+                } else {
+                    null
+                }
+
+                if (progressMatch != null) {
+                    val progressText = context.getString(
+                        R.string.kr_log_extracting,
+                        progressMatch.groupValues[1]
+                    )
+                    val styled = SpannableString(progressText)
+                    styled.setSpan(ForegroundColorSpan(endColor), 0, styled.length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+                    if (lastProgressActive && lastProgressLength <= outputBuffer.length) {
+                        val start = outputBuffer.length - lastProgressLength
+                        outputBuffer.replace(start, outputBuffer.length, styled)
+                    } else {
+                        if (outputBuffer.isNotEmpty()) outputBuffer.append('\n')
+                        outputBuffer.append(styled)
+                    }
+                    lastProgressLength = styled.length
+                    lastProgressActive = true
+                } else {
+                    if (lastProgressActive) {
+                        outputBuffer.append('\n')
+                        lastProgressActive = false
+                        lastProgressLength = 0
+                    }
+
+                    val styled = SpannableString(line)
+                    styled.setSpan(ForegroundColorSpan(color), 0, styled.length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    if (outputBuffer.isNotEmpty()) outputBuffer.append('\n')
+                    outputBuffer.append(styled)
+                }
+            }
+
+            if (outputBuffer.length > MAX_OUTPUT_CHARS) {
+                val textValue = outputBuffer.toString()
+                val removeUntil = textValue.indexOf('\n', outputBuffer.length - MAX_OUTPUT_CHARS / 2)
+                if (removeUntil >= 0) {
+                    outputBuffer.delete(0, removeUntil + 1)
+                }
+                lastProgressActive = false
+                lastProgressLength = 0
             }
         }
     }
