@@ -29,7 +29,6 @@ public class MTDataFilesProvider extends DocumentsProvider {
     public File d;
     public File e;
 
-
     public static boolean a(File file) {
         File[] listFiles;
         if (file.isDirectory()) {
@@ -46,7 +45,6 @@ public class MTDataFilesProvider extends DocumentsProvider {
             } catch (ErrnoException ex) {
                 throw new RuntimeException(ex);
             }
-
         }
         return !file.delete();
     }
@@ -77,7 +75,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
 
     public final File b(String str, boolean z) {
         String substring;
-        if (str.startsWith(this.b)) {
+        if (str != null && str.startsWith(this.b)) {
             String substring2 = str.substring(this.b.length());
             if (substring2.startsWith("/")) {
                 substring2 = substring2.substring(1);
@@ -101,20 +99,26 @@ public class MTDataFilesProvider extends DocumentsProvider {
             } else if (substring2.equalsIgnoreCase("android_obb")) {
                 file = new File(this.e, substring);
             }
-            if (file == null || (z && !file.exists())) {
-                try {
-                    throw new FileNotFoundException(str.concat(" not found"));
-                } catch (FileNotFoundException ex) {
-                    throw new RuntimeException(ex);
-                }
+            if (file == null) {
+                throw new RuntimeException(new FileNotFoundException(str + " not found"));
             }
-            return file;
+            try {
+                File root = file.getParentFile().getCanonicalFile();
+                File target = file.getCanonicalFile();
+                String rootPath = root.getPath();
+                String targetPath = target.getPath();
+                if (!targetPath.equals(rootPath) && !targetPath.startsWith(rootPath + File.separator)) {
+                    throw new SecurityException("Path escapes provider root: " + str);
+                }
+                if (z && !target.exists()) {
+                    throw new RuntimeException(new FileNotFoundException(str + " not found"));
+                }
+                return target;
+            } catch (IOException ex) {
+                throw new RuntimeException(new FileNotFoundException(str + " not found"));
+            }
         }
-        try {
-            throw new FileNotFoundException(str.concat(" not found"));
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
+        throw new RuntimeException(new FileNotFoundException(String.valueOf(str) + " not found"));
     }
 
     @Override
@@ -182,11 +186,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
                 Log.e("mt_!", e.toString());
             }
         }
-        try {
-            throw new FileNotFoundException("Failed to create document in " + str + " with name " + str3);
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
+        throw new RuntimeException(new FileNotFoundException("Failed to create document in " + str + " with name " + str3));
     }
 
     public final void d(MatrixCursor matrixCursor, String str, File file) {
@@ -206,17 +206,8 @@ public class MTDataFilesProvider extends DocumentsProvider {
             newRow.add("flags", 0);
             return;
         }
-        if (file.isDirectory()) {
-            if (file.canWrite()) {
-                i = 8;
-            }
-        } else {
-            if (file.canWrite()) {
-                i = 2;
-            }
-        }
         i = 0;
-        if (file.getParentFile().canWrite()) {
+        if (file.getParentFile() != null && file.getParentFile().canWrite()) {
             i = i | 4 | 64;
         }
         String path = file.getPath();
@@ -261,11 +252,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
     public final void deleteDocument(String str) {
         File b = b(str, true);
         if (b == null || a(b)) {
-            try {
-                throw new FileNotFoundException("Failed to delete document ".concat(str));
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
+            throw new RuntimeException(new FileNotFoundException("Failed to delete document " + str));
         }
     }
 
@@ -277,7 +264,13 @@ public class MTDataFilesProvider extends DocumentsProvider {
 
     @Override
     public final boolean isChildDocument(String str, String str2) {
-        return str2.startsWith(str);
+        if (str == null || str2 == null) {
+            return false;
+        }
+        if (str.equals(this.b)) {
+            return str2.startsWith(this.b + "/");
+        }
+        return str2.startsWith(str.endsWith("/") ? str : str + "/");
     }
 
     @Override
@@ -293,11 +286,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
                 return str3 + "/" + file.getName();
             }
         }
-        try {
-            throw new FileNotFoundException("Filed to move document " + str + " to " + str3);
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
+        throw new RuntimeException(new FileNotFoundException("Filed to move document " + str + " to " + str3));
     }
 
     @Override
@@ -315,11 +304,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
                 throw new RuntimeException(ex);
             }
         }
-        try {
-            throw new FileNotFoundException(str.concat(" not found"));
-        } catch (FileNotFoundException ex) {
-            throw new RuntimeException(ex);
-        }
+        throw new RuntimeException(new FileNotFoundException(str + " not found"));
     }
 
     @Override
@@ -389,11 +374,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
     public final String renameDocument(String str, String str2) {
         File b = b(str, true);
         if (b == null || !b.renameTo(new File(b.getParentFile(), str2))) {
-            try {
-                throw new FileNotFoundException("Failed to rename document " + str + " to " + str2);
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
+            throw new RuntimeException(new FileNotFoundException("Failed to rename document " + str + " to " + str2));
         }
         int lastIndexOf = str.lastIndexOf(47, str.length() - 2);
         return str.substring(0, lastIndexOf) + "/" + str2;
