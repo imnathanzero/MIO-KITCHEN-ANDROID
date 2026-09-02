@@ -23,7 +23,7 @@ android {
         }
     }
     lintOptions {
-        abortOnError false
+        abortOnError true
     }
 }
 
@@ -34,8 +34,8 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation project(':common') // 添加依赖模块
-    implementation project(':krscript') // 添加依赖模块
+    implementation project(':common')
+    implementation project(':krscript')
     implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
 }
 repositories {
