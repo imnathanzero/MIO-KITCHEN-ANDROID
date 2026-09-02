@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("extension", extension)
             startActivityForResult(intent, ACTION_FILE_PATH_CHOOSER_INNER)
         } catch (ex: java.lang.Exception) {
-            Toast.makeText(this, "启动内置文件选择器失败！", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.internal_file_selector_failed), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -270,15 +270,41 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
+
+    private fun showLanguageSelector() {
+        val languages = arrayOf(
+            getString(R.string.language_english),
+            getString(R.string.language_chinese),
+            getString(R.string.language_japanese)
+        )
+        val current = LanguageManager.languageIndex(LanguageManager.getLanguage(this))
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle(R.string.language)
+            .setSingleChoiceItems(languages, current) { dialog, which ->
+                val language = when (which) {
+                    1 -> LanguageManager.CHINESE
+                    2 -> LanguageManager.JAPANESE
+                    else -> LanguageManager.ENGLISH
+                }
+                if (language != LanguageManager.getLanguage(this)) {
+                    LanguageManager.setLanguage(this, language)
+                    dialog.dismiss()
+                    Toast.makeText(this, R.string.language_changed, Toast.LENGTH_SHORT).show()
+                    recreate()
+                } else {
+                    dialog.dismiss()
+                }
+            }
+            .show()
+    }
+
     private fun joinQQGroup(): Boolean {
         val intent = Intent()
         intent.setData(Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D21AK43VAjnenVLiSaFLdTLQS6-Uv_ITm"))
-        // 此Flag可根据具体产品需要自定义，如设置，则在加群界面按返回，返回手Q主界面，不设置，按返回会返回到呼起产品界面    //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return try {
             startActivity(intent)
             true
         } catch (e: java.lang.Exception) {
-            // 未安装手Q或安装的版本不支持
             false
         }
     }
@@ -289,12 +315,15 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             true
         } catch (e: java.lang.Exception) {
-            // 未安装手Q或安装的版本不支持
             false
         }
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.option_menu_language -> {
+                showLanguageSelector()
+                return true
+            }
             R.id.option_menu_info -> {
                 val layoutInflater = LayoutInflater.from(this)
                 val layout = layoutInflater.inflate(R.layout.dialog_about, null)
