@@ -6,4 +6,8 @@
     <color name="kr_shell_log_basic">#445566</color>
     <color name="kr_shell_log_script">#808080</color>
     <color name="kr_shell_log_end">#0064B4</color>
+    <color name="kr_log_panel_bg">#101318</color>
+    <color name="kr_log_panel_stroke">#26313D</color>
+    <color name="kr_log_status_bg">#142B22</color>
+    <color name="kr_log_status_stroke">#245B43</color>
 </resources>
