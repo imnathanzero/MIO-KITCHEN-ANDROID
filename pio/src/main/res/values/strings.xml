@@ -124,4 +124,36 @@
     <string name="mio_br_level">BR compression level</string>
     <string name="mio_zstd_level">ZSTD compression level</string>
     <string name="mio_compression_tradeoff">Higher values compress more slowly. Choose as needed.</string>
+
+    <string name="home_overview">Overview</string>
+    <string name="home_project_list">Project List</string>
+    <string name="home_tools">Tools</string>
+    <string name="home_download_rom">Download ROM</string>
+    <string name="home_unpack_after_download">Unpack after download</string>
+    <string name="home_delete_after_unpack">Delete source after unpacking</string>
+    <string name="home_input_link">URL</string>
+    <string name="home_enter_link">Enter URL...</string>
+    <string name="home_select_rom">Select ROM</string>
+    <string name="home_delete_source">Delete source file</string>
+    <string name="home_file_selection">File</string>
+    <string name="home_delete_project">Delete Project</string>
+    <string name="home_new_project">New Project</string>
+    <string name="home_project_name">Project name</string>
+    <string name="home_enter_project_name">Enter project name</string>
+    <string name="home_project_name_placeholder">Enter project name (do not use Chinese characters)</string>
+    <string name="home_engineering_menu">Project Tools</string>
+
+    <string name="more_script_executor">Script Executor</string>
+    <string name="more_custom_command">Custom command</string>
+    <string name="more_flash_image">Flash image file</string>
+    <string name="more_reboot_after_flash">Reboot system after successful flash</string>
+    <string name="more_reboot_recovery_after_flash">Reboot to Recovery after successful flash</string>
+    <string name="more_partition_size_warning">Note: the image to flash must not be larger than the displayed partition size</string>
+    <string name="more_image_path_hint">Enter the absolute IMG path or use the file picker</string>
+    <string name="more_path_no_spaces">Prefer paths without spaces</string>
+    <string name="more_extract_image">Extract image file</string>
+    <string name="more_select_partitions">Select partitions (multiple allowed)</string>
+    <string name="more_disclaimer">Disclaimer</string>
+    <string name="more_risk_warning">You are responsible for all risks caused by this tool.</string>
+    <string name="more_bug_feedback">Please report bugs to us promptly when you find them.</string>
 </resources>
