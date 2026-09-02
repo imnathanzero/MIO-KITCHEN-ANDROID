@@ -8,6 +8,7 @@ import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import android.os.Message
+import android.text.Spannable
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
@@ -46,6 +47,7 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
     private var params: HashMap<String, String>? = null
     private var themeResId: Int = 0
     private lateinit var currentView: View
+    private var shellOutputHandler: MyShellHandler? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return Dialog(activity!!, if (themeResId != 0) themeResId else R.style.kr_full_screen_dialog_light)
@@ -126,7 +128,8 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
 
         status.text = getString(R.string.kr_log_running)
         action_progress.isIndeterminate = true
-        return MyShellHandler(object : IActionEventHandler {
+
+        val shellHandler = MyShellHandler(object : IActionEventHandler {
             override fun onCompleted() {
                 running = false
 
@@ -137,7 +140,9 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
                     action_progress.visibility = View.GONE
                 }
 
-                status.text = getString(if (hasError()) R.string.kr_log_failed else R.string.kr_log_done)
+                status.text = getString(
+                    if (shellOutputHandler?.hasError() == true) R.string.kr_log_failed else R.string.kr_log_done
+                )
                 isCancelable = true
             }
 
@@ -160,13 +165,9 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
             }
 
         }, shell_output, action_progress)
+        shellOutputHandler = shellHandler
+        return shellHandler
     }
-
-    private fun hasError(): Boolean {
-        return shellOutputHandler?.hasError() == true
-    }
-
-    private var shellOutputHandler: MyShellHandler? = null
 
     @FunctionalInterface
     interface IActionEventHandler {
@@ -258,7 +259,10 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
         }
 
         override fun onExit(msg: Any?) {
-            updateLog(context.getString(if (hasError) R.string.kr_shell_finish_error else R.string.kr_shell_completed), endColor)
+            updateLog(
+                context.getString(if (hasError) R.string.kr_shell_finish_error else R.string.kr_shell_completed),
+                endColor
+            )
             actionEventHandler.onCompleted()
             if (!hasError) {
                 actionEventHandler.onSuccess()
@@ -303,7 +307,7 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
                         progressMatch.groupValues[1]
                     )
                     val styled = SpannableString(progressText)
-                    styled.setSpan(ForegroundColorSpan(endColor), 0, styled.length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    styled.setSpan(ForegroundColorSpan(endColor), 0, styled.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
                     if (lastProgressActive && lastProgressLength <= outputBuffer.length) {
                         val start = outputBuffer.length - lastProgressLength
@@ -322,7 +326,7 @@ class DialogLogFragment : androidx.fragment.app.DialogFragment() {
                     }
 
                     val styled = SpannableString(line)
-                    styled.setSpan(ForegroundColorSpan(color), 0, styled.length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    styled.setSpan(ForegroundColorSpan(color), 0, styled.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
                     if (outputBuffer.isNotEmpty()) outputBuffer.append('\n')
                     outputBuffer.append(styled)
                 }
