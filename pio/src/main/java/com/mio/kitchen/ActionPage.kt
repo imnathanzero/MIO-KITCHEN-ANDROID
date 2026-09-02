@@ -46,6 +46,10 @@ class ActionPage : AppCompatActivity() {
     private lateinit var currentPageConfig: PageNode
     private var autoRunItemId = ""
 
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LanguageManager.apply(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -101,7 +105,7 @@ class ActionPage : AppCompatActivity() {
                     }
                     currentPageConfig = page
                 } else {
-                    Toast.makeText(this, "页面信息无效", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, getString(R.string.page_info_invalid), Toast.LENGTH_SHORT).show()
                     finish()
                 }
             }
@@ -163,7 +167,7 @@ class ActionPage : AppCompatActivity() {
             intent.putExtra("mode", 0)
             startActivityForResult(intent, ACTION_FILE_PATH_CHOOSER_INNER)
         } catch (ex: Exception) {
-            Toast.makeText(this, "启动内置文件选择器失败！", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.file_selector_start_failed), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -173,7 +177,7 @@ class ActionPage : AppCompatActivity() {
             intent.putExtra("mode", 1)
             startActivityForResult(intent, ACTION_FILE_PATH_CHOOSER_INNER)
         } catch (ex: Exception) {
-            Toast.makeText(this, "启动内置文件选择器失败！", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.file_selector_start_failed), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -182,7 +186,7 @@ class ActionPage : AppCompatActivity() {
     // 右上角菜单的创建
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         if (menuOptions == null) {
-            menuOptions = PageMenuLoader(applicationContext, currentPageConfig).load()
+            menuOptions = PageMenuLoader(this, currentPageConfig).load()
         }
 
         if (menuOptions != null && menu != null) {
@@ -409,7 +413,7 @@ class ActionPage : AppCompatActivity() {
                 }
 
                 if (items == null && pageConfigPath.isNotEmpty()) {
-                    items = PageConfigReader(applicationContext, pageConfigPath, pageConfigDir).readConfigXml()
+                    items = PageConfigReader(this@ActionPage, pageConfigPath, pageConfigDir).readConfigXml()
                 }
 
                 if (afterRead.isNotEmpty()) {
