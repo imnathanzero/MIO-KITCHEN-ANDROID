@@ -43,4 +43,36 @@
   <string name="now_loading">読み込み中...</string>
   <string name="directory_is_empty">このディレクトリは空です！</string>
   <string name="confirm_select_directory">次のディレクトリが選択されます:</string>
+
+  <string name="home_overview">概要</string>
+  <string name="home_project_list">プロジェクト一覧</string>
+  <string name="home_tools">ツール</string>
+  <string name="home_download_rom">ROM をダウンロード</string>
+  <string name="home_unpack_after_download">ダウンロード後に解凍</string>
+  <string name="home_delete_after_unpack">解凍後に元ファイルを削除</string>
+  <string name="home_input_link">URL</string>
+  <string name="home_enter_link">URL を入力...</string>
+  <string name="home_select_rom">ROM を選択</string>
+  <string name="home_delete_source">元ファイルを削除</string>
+  <string name="home_file_selection">ファイル</string>
+  <string name="home_delete_project">プロジェクトを削除</string>
+  <string name="home_new_project">新しいプロジェクト</string>
+  <string name="home_project_name">プロジェクト名</string>
+  <string name="home_enter_project_name">プロジェクト名を入力</string>
+  <string name="home_project_name_placeholder">プロジェクト名を入力（中国語文字は使用しないでください）</string>
+  <string name="home_engineering_menu">プロジェクトツール</string>
+
+  <string name="more_script_executor">スクリプト実行</string>
+  <string name="more_custom_command">カスタムコマンド</string>
+  <string name="more_flash_image">イメージファイルを書き込む</string>
+  <string name="more_reboot_after_flash">書き込み成功後にシステムを再起動</string>
+  <string name="more_reboot_recovery_after_flash">書き込み成功後に Recovery へ再起動</string>
+  <string name="more_partition_size_warning">注: 書き込むイメージは表示されたパーティションサイズを超えないでください</string>
+  <string name="more_image_path_hint">IMG の絶対パスを入力するか、ファイル選択を使用してください</string>
+  <string name="more_path_no_spaces">スペースを含まないパスを推奨します</string>
+  <string name="more_extract_image">イメージファイルを抽出</string>
+  <string name="more_select_partitions">パーティションを選択（複数選択可）</string>
+  <string name="more_disclaimer">免責事項</string>
+  <string name="more_risk_warning">このツールの使用によって生じるすべてのリスクは利用者が負担します。</string>
+  <string name="more_bug_feedback">バグを発見した場合は、速やかに報告してください。</string>
 </resources>
