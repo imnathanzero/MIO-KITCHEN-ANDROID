@@ -74,41 +74,40 @@ public class MTDataFilesProvider extends DocumentsProvider {
     }
 
     public final File b(String str, boolean z) {
-        String substring;
         if (str != null && str.startsWith(this.b)) {
-            String substring2 = str.substring(this.b.length());
-            if (substring2.startsWith("/")) {
-                substring2 = substring2.substring(1);
+            String relative = str.substring(this.b.length());
+            if (relative.startsWith("/")) {
+                relative = relative.substring(1);
             }
-            File file = null;
-            if (substring2.isEmpty()) {
+            if (relative.isEmpty()) {
                 return null;
             }
-            int indexOf = substring2.indexOf(47);
-            if (indexOf == -1) {
-                substring = "";
+            int indexOf = relative.indexOf(47);
+            String rootId = indexOf == -1 ? relative : relative.substring(0, indexOf);
+            String child = indexOf == -1 ? "" : relative.substring(indexOf + 1);
+            File root;
+            if (rootId.equalsIgnoreCase("data")) {
+                root = this.c;
+            } else if (rootId.equalsIgnoreCase("android_data")) {
+                root = this.d;
+            } else if (rootId.equalsIgnoreCase("android_obb")) {
+                root = this.e;
             } else {
-                String substring3 = substring2.substring(0, indexOf);
-                substring = substring2.substring(indexOf + 1);
-                substring2 = substring3;
-            }
-            if (substring2.equalsIgnoreCase("data")) {
-                file = new File(this.c, substring);
-            } else if (substring2.equalsIgnoreCase("android_data")) {
-                file = new File(this.d, substring);
-            } else if (substring2.equalsIgnoreCase("android_obb")) {
-                file = new File(this.e, substring);
-            }
-            if (file == null) {
                 throw new RuntimeException(new FileNotFoundException(str + " not found"));
             }
+            if (child.isEmpty()) {
+                if (z && !root.exists()) {
+                    throw new RuntimeException(new FileNotFoundException(str + " not found"));
+                }
+                return root;
+            }
             try {
-                File root = file.getParentFile().getCanonicalFile();
-                File target = file.getCanonicalFile();
-                String rootPath = root.getPath();
+                File canonicalRoot = root.getCanonicalFile();
+                File target = new File(root, child).getCanonicalFile();
+                String rootPath = canonicalRoot.getPath();
                 String targetPath = target.getPath();
-                if (!targetPath.equals(rootPath) && !targetPath.startsWith(rootPath + File.separator)) {
-                    throw new SecurityException("Path escapes provider root: " + str);
+                if (!targetPath.startsWith(rootPath + File.separator)) {
+                    throw new SecurityException("Path escapes provider root");
                 }
                 if (z && !target.exists()) {
                     throw new RuntimeException(new FileNotFoundException(str + " not found"));
@@ -124,13 +123,9 @@ public class MTDataFilesProvider extends DocumentsProvider {
     @Override
     public final Bundle call(String str, String str2, Bundle bundle) {
         Bundle call = super.call(str, str2, bundle);
-        if (call != null) {
-            return call;
-        }
+        if (call != null) return call;
         try {
-            if (!str.equals("mt:setPermissions") && !str.equals("mt:setLastModified")) {
-                return null;
-            }
+            if (!str.equals("mt:setPermissions") && !str.equals("mt:setLastModified")) return null;
             List<String> pathSegments = ((Uri) bundle.getParcelable("uri")).getPathSegments();
             File b = b(pathSegments.size() >= 4 ? pathSegments.get(3) : pathSegments.get(1), true);
             Bundle bundle2 = new Bundle();
@@ -158,29 +153,21 @@ public class MTDataFilesProvider extends DocumentsProvider {
 
     @Override
     public final String createDocument(String str, String str2, String str3) {
-        StringBuilder sb;
         File b = b(str, true);
         if (b != null) {
-            File file = new File(b, str3);
-            int i = 2;
-            while (file.exists()) {
-                file = new File(b, str3 + " (" + i + ")");
-                i++;
-            }
             try {
+                File file = new File(b, str3).getCanonicalFile();
+                String parentPath = b.getCanonicalPath();
+                if (!file.getPath().startsWith(parentPath + File.separator)) {
+                    throw new SecurityException("Path escapes provider root");
+                }
+                int i = 2;
+                while (file.exists()) {
+                    file = new File(b, str3 + " (" + i + ")").getCanonicalFile();
+                    i++;
+                }
                 if ("vnd.android.document/directory".equals(str2) ? file.mkdir() : file.createNewFile()) {
-                    if (str.endsWith("/")) {
-                        sb = new StringBuilder();
-                        sb.append(str);
-                        sb.append(file.getName());
-                    } else {
-                        sb = new StringBuilder();
-                        sb.append(str);
-                        sb.append("/");
-                        sb.append(file.getName());
-                    }
-                    str = sb.toString();
-                    return str;
+                    return str.endsWith("/") ? str + file.getName() : str + "/" + file.getName();
                 }
             } catch (IOException e) {
                 Log.e("mt_!", e.toString());
@@ -190,12 +177,8 @@ public class MTDataFilesProvider extends DocumentsProvider {
     }
 
     public final void d(MatrixCursor matrixCursor, String str, File file) {
-        int i;
         String name;
-        if (file == null) {
-            file = b(str, true);
-        }
-        boolean z = false;
+        if (file == null) file = b(str, true);
         if (file == null) {
             MatrixCursor.RowBuilder newRow = matrixCursor.newRow();
             newRow.add("document_id", this.b);
@@ -206,21 +189,13 @@ public class MTDataFilesProvider extends DocumentsProvider {
             newRow.add("flags", 0);
             return;
         }
-        i = 0;
-        if (file.getParentFile() != null && file.getParentFile().canWrite()) {
-            i = i | 4 | 64;
-        }
+        int i = 0;
+        if (file.getParentFile() != null && file.getParentFile().canWrite()) i = i | 4 | 64;
         String path = file.getPath();
-        if (path.equals(this.c.getPath())) {
-            name = "data";
-        } else if (path.equals(this.d.getPath())) {
-            name = "android_data";
-        } else if (path.equals(this.e.getPath())) {
-            name = "android_obb";
-        } else {
-            name = file.getName();
-            z = true;
-        }
+        if (path.equals(this.c.getPath())) name = "data";
+        else if (path.equals(this.d.getPath())) name = "android_data";
+        else if (path.equals(this.e.getPath())) name = "android_obb";
+        else name = file.getName();
         MatrixCursor.RowBuilder newRow2 = matrixCursor.newRow();
         newRow2.add("document_id", str);
         newRow2.add("_display_name", name);
@@ -228,19 +203,12 @@ public class MTDataFilesProvider extends DocumentsProvider {
         newRow2.add("mime_type", c(file));
         newRow2.add("last_modified", file.lastModified());
         newRow2.add("flags", i);
-        if (z) {
+        if (!path.equals(this.c.getPath()) && !path.equals(this.d.getPath()) && !path.equals(this.e.getPath())) {
             try {
                 StringBuilder sb = new StringBuilder();
                 StructStat lstat = Os.lstat(path);
-                sb.append(lstat.st_mode);
-                sb.append("|");
-                sb.append(lstat.st_uid);
-                sb.append("|");
-                sb.append(lstat.st_gid);
-                if ((lstat.st_mode & 61440) == 40960) {
-                    sb.append("|");
-                    sb.append(Os.readlink(path));
-                }
+                sb.append(lstat.st_mode).append("|").append(lstat.st_uid).append("|").append(lstat.st_gid);
+                if ((lstat.st_mode & 61440) == 40960) sb.append("|").append(Os.readlink(path));
                 newRow2.add("mt_extras", sb.toString());
             } catch (Exception e) {
                 Log.e("mt_!", e.toString());
@@ -251,9 +219,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
     @Override
     public final void deleteDocument(String str) {
         File b = b(str, true);
-        if (b == null || a(b)) {
-            throw new RuntimeException(new FileNotFoundException("Failed to delete document " + str));
-        }
+        if (b == null || a(b)) throw new RuntimeException(new FileNotFoundException("Failed to delete document " + str));
     }
 
     @Override
@@ -264,12 +230,8 @@ public class MTDataFilesProvider extends DocumentsProvider {
 
     @Override
     public final boolean isChildDocument(String str, String str2) {
-        if (str == null || str2 == null) {
-            return false;
-        }
-        if (str.equals(this.b)) {
-            return str2.startsWith(this.b + "/");
-        }
+        if (str == null || str2 == null) return false;
+        if (str.equals(this.b)) return str2.startsWith(this.b + "/");
         return str2.startsWith(str.endsWith("/") ? str : str + "/");
     }
 
@@ -279,68 +241,44 @@ public class MTDataFilesProvider extends DocumentsProvider {
         File b2 = b(str3, true);
         if (b != null && b2 != null) {
             File file = new File(b2, b.getName());
-            if (!file.exists() && b.renameTo(file)) {
-                if (str3.endsWith("/")) {
-                    return str3 + file.getName();
-                }
-                return str3 + "/" + file.getName();
-            }
+            if (!file.exists() && b.renameTo(file)) return str3.endsWith("/") ? str3 + file.getName() : str3 + "/" + file.getName();
         }
         throw new RuntimeException(new FileNotFoundException("Filed to move document " + str + " to " + str3));
     }
 
     @Override
-    public final boolean onCreate() {
-        return true;
-    }
+    public final boolean onCreate() { return true; }
 
     @Override
     public final ParcelFileDescriptor openDocument(String str, String str2, CancellationSignal cancellationSignal) {
         File b = b(str, false);
         if (b != null) {
-            try {
-                return ParcelFileDescriptor.open(b, ParcelFileDescriptor.parseMode(str2));
-            } catch (FileNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
+            try { return ParcelFileDescriptor.open(b, ParcelFileDescriptor.parseMode(str2)); }
+            catch (FileNotFoundException ex) { throw new RuntimeException(ex); }
         }
         throw new RuntimeException(new FileNotFoundException(str + " not found"));
     }
 
     @Override
     public final Cursor queryChildDocuments(String str, String[] strArr, String str2) {
-        if (str.endsWith("/")) {
-            str = str.substring(0, str.length() - 1);
-        }
-        if (strArr == null) {
-            strArr = g;
-        }
+        if (str.endsWith("/")) str = str.substring(0, str.length() - 1);
+        if (strArr == null) strArr = g;
         MatrixCursor matrixCursor = new MatrixCursor(strArr);
         File b = b(str, true);
         if (b == null) {
             d(matrixCursor, str.concat("/data"), this.c);
-            if (this.d.exists()) {
-                d(matrixCursor, str.concat("/android_data"), this.d);
-            }
-            if (this.e.exists()) {
-                d(matrixCursor, str.concat("/android_obb"), this.e);
-            }
+            if (this.d.exists()) d(matrixCursor, str.concat("/android_data"), this.d);
+            if (this.e.exists()) d(matrixCursor, str.concat("/android_obb"), this.e);
         } else {
             File[] listFiles = b.listFiles();
-            if (listFiles != null) {
-                for (File file : listFiles) {
-                    d(matrixCursor, str + "/" + file.getName(), file);
-                }
-            }
+            if (listFiles != null) for (File file : listFiles) d(matrixCursor, str + "/" + file.getName(), file);
         }
         return matrixCursor;
     }
 
     @Override
     public final Cursor queryDocument(String str, String[] strArr) {
-        if (strArr == null) {
-            strArr = g;
-        }
+        if (strArr == null) strArr = g;
         MatrixCursor matrixCursor = new MatrixCursor(strArr);
         d(matrixCursor, str, null);
         return matrixCursor;
@@ -350,9 +288,7 @@ public class MTDataFilesProvider extends DocumentsProvider {
     public final Cursor queryRoots(String[] strArr) {
         ApplicationInfo applicationInfo = getContext().getApplicationInfo();
         String charSequence = applicationInfo.loadLabel(getContext().getPackageManager()).toString();
-        if (strArr == null) {
-            strArr = f;
-        }
+        if (strArr == null) strArr = f;
         MatrixCursor matrixCursor = new MatrixCursor(strArr);
         MatrixCursor.RowBuilder newRow = matrixCursor.newRow();
         newRow.add("root_id", this.b);
@@ -366,17 +302,26 @@ public class MTDataFilesProvider extends DocumentsProvider {
     }
 
     @Override
-    public final void removeDocument(String str, String str2) {
-        deleteDocument(str);
-    }
+    public final void removeDocument(String str, String str2) { deleteDocument(str); }
 
     @Override
     public final String renameDocument(String str, String str2) {
         File b = b(str, true);
-        if (b == null || !b.renameTo(new File(b.getParentFile(), str2))) {
-            throw new RuntimeException(new FileNotFoundException("Failed to rename document " + str + " to " + str2));
+        if (b == null || b.getParentFile() == null) throw new RuntimeException(new FileNotFoundException("Failed to rename document " + str + " to " + str2));
+        try {
+            File target = new File(b.getParentFile(), str2).getCanonicalFile();
+            String parentPath = b.getParentFile().getCanonicalPath();
+            if (!target.getPath().startsWith(parentPath + File.separator) || !b.renameTo(target)) {
+                throw new FileNotFoundException("Failed to rename document " + str + " to " + str2);
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
         int lastIndexOf = str.lastIndexOf(47, str.length() - 2);
-        return str.substring(0, lastIndexOf) + "/" + str2;
+        return str.substring(0, lastIndexOf) + "/" + targetName(str2);
+    }
+
+    private String targetName(String name) {
+        return new File(name).getName();
     }
 }
