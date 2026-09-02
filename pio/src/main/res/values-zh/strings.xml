@@ -26,6 +26,10 @@
     <string name="transparent_ui">界面透明</string>
     <string name="title_activity_file_selector">请选择文件</string>
     <string name="title_activity_folder_selector">请长按选择目录</string>
+    <string name="page_info_invalid">页面信息无效</string>
+    <string name="file_selector_start_failed">启动内置文件选择器失败！</string>
+    <string name="file_read_permission_denied">没有读取文件的权限！</string>
+    <string name="file_list_failed">获取文件列表失败！</string>
     <string name="power_shutdown_cmd" translatable="false">sync;svc power shutdown || reboot -p;</string>
     <string name="power_reboot_cmd" translatable="false">sync;svc power reboot || reboot;</string>
     <string name="power_hot_reboot_cmd" translatable="false">sync;am restart || busybox killall system_server;</string>
