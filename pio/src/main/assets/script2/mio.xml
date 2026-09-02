@@ -3,105 +3,17 @@
 <group title="@string/mio_group_modules">
     <page reload="true" config-sh="script/tool.sh module" title="@string/mio_modules" desc="@string/mio_modules_desc"/>
 </group>
-
 <group title="@string/mio_group_extract">
-    <action>
-        <title>@string/mio_extract_rom</title>
-        <set>script/tool.sh UN</set>
-    </action>
-    <action>
-        <title>@string/mio_unpack_br</title>
-        <set>script/tool.sh zdyfj</set>
-        <param name="cleanup" label="@string/mio_delete_source" type="checkbox" />
-        <param name="zdy" title="@string/mio_choose_br" options-sh="script/tool.sh new.dat.br" desc="@string/mio_auto_detect" required="true" multiple="true"/>
-    </action>
-    <action>
-        <title>@string/mio_unpack_dat</title>
-        <set>script/tool.sh zdyfj</set>
-        <param name="cleanup" label="@string/mio_delete_source" type="checkbox" />
-        <param name="zdy" title="@string/mio_choose_dat" options-sh="script/tool.sh new.dat" desc="@string/mio_project_file_detect" required="true" multiple="true"/>
-    </action>
-    <action>
-        <title>@string/mio_extract_super_payload</title>
-        <set>script/tool.sh tqdgjx</set>
-        <param name="qptq" label="@string/mio_full_disk_extract" type="switch" />
-        <param name="del" label="@string/mio_delete_source" type="switch" />
-        <param name="tqjx" title="@string/mio_choose_image" options-sh="script/tool.sh dg" desc="@string/mio_auto" required="true" multiple="true"/>
-        <param name="jxs" title="@string/mio_choose_partition" options-sh="script/tool.sh readdt" desc="@string/mio_auto" required="true" multiple="true"/>
-    </action>
-    <action>
-        <title>@string/mio_unpack_img</title>
-        <set>script/tool.sh zdyfj</set>
-        <param name="cleanup" label="@string/mio_delete_source" type="checkbox" />
-        <param name="IMG" title="@string/mio_choose_img" options-sh="script/tool.sh img" desc="@string/mio_project_img_detect" required="true" multiple="true"/>
-    </action>
+    <action><title>@string/mio_extract_rom</title><set>script/tool.sh UN</set></action>
+    <action><title>@string/mio_unpack_br</title><set>script/tool.sh zdyfj</set><param name="cleanup" label="@string/mio_delete_source" type="checkbox" /><param name="zdy" title="@string/mio_choose_br" options-sh="script/tool.sh new.dat.br" desc="@string/mio_auto_detect" required="true" multiple="true"/></action>
+    <action><title>@string/mio_unpack_dat</title><set>script/tool.sh zdyfj</set><param name="cleanup" label="@string/mio_delete_source" type="checkbox" /><param name="zdy" title="@string/mio_choose_dat" options-sh="script/tool.sh new.dat" desc="@string/mio_project_file_detect" required="true" multiple="true"/></action>
+    <action><title>@string/mio_extract_super_payload</title><set>script/tool.sh tqdgjx</set><param name="qptq" label="@string/mio_full_disk_extract" type="switch" /><param name="del" label="@string/mio_delete_source" type="switch" /><param name="tqjx" title="@string/mio_choose_image" options-sh="script/tool.sh dg" desc="@string/mio_auto" required="true" multiple="true"/><param name="jxs" title="@string/mio_choose_partition" options-sh="script/tool.sh readdt" desc="@string/mio_auto" required="true" multiple="true"/></action>
+    <action><title>@string/mio_unpack_img</title><set>script/tool.sh zdyfj</set><param name="cleanup" label="@string/mio_delete_source" type="checkbox" /><param name="IMG" title="@string/mio_choose_img" options-sh="script/tool.sh img" desc="@string/mio_project_img_detect" required="true" multiple="true"/></action>
 </group>
-
 <group title="@string/mio_group_pack">
-    <action>
-        <title>@string/mio_pack_image</title>
-        <set>script/tool.sh pack</set>
-        <param name="UIMGS" options-sh="script/tool.sh lsmdir" desc="@string/mio_multi_pack_detect" required="true" multiple="true"/>
-        <param name="dbfs" label="@string/mio_pack_method" desc="@string/mio_ext4_only" >
-            <option value="mkeimg">mke2fs+e2fsdroid</option>
-            <option value="make_ext4">make_ext4fs</option>
-        </param>
-        <param name="jxys" label="@string/mio_image_compression" type="switch" />
-        <param name="del" label="@string/mio_delete_source" type="switch" />
-        <param name="zhua" label="@string/mio_erofs_ext_convert" type="switch" />
-        <param name="fixb" label="@string/mio_fix_build" desc="@string/mio_boot_only" type="switch" />
-        <param name="Reading" label="@string/mio_partition_rw" desc="@string/mio_ext4_only" >
-            <option value="ro">@string/mio_read_only</option>
-            <option value="rw">@string/mio_read_write</option>
-        </param>
-        <param name="psize" label="@string/mio_pack_size" desc="@string/mio_ext4_only" >
-            <option value="auto" >@string/mio_auto_size</option>
-            <option value="orig" >@string/mio_original_img_size</option>
-        </param>
-        <param name="img_type" label="@string/mio_pack_format" desc="@string/mio_ext4_erofs_only" >
-            <option value="raw" >raw</option>
-            <option value="sparse" >sparse</option>
-        </param>
-        <param name="fze" label="@string/mio_erofs_compression_level" value="8" desc="@string/mio_erofs_only" />
-        <param name="type" label="@string/mio_erofs_compression" desc="@string/mio_erofs_only" >
-            <option value="lz4hc" >lz4hc</option>
-            <option value="lz4" >lz4</option>
-            <option value="lzma" >lzma</option>
-            <option value="deflate" >deflate</option>
-        </param>
-    </action>
-    <action>
-        <title>@string/mio_pack_super</title>
-        <set>script/tool.sh packsuper</set>
-        <param name="type" label="@string/mio_pack_type" >
-            <option value="A">a_only</option>
-            <option value="AB">ab</option>
-            <option value="VAB">virtual_ab</option>
-        </param>
-        <param name="from" label="@string/mio_pack_format" >
-            <option value="sparse">sparse</option>
-            <option value="raw">raw</option>
-        </param>
-        <param name="super_size" required="true" value="12884901888" label="@string/mio_super_size" desc="@string/mio_super_size_desc" />
-        <param name="super_group" required="true" value="12884901888" label="@string/mio_dynamic_group" desc="@string/mio_dynamic_group_desc" />
-        <param name="simg" title="@string/mio_choose_img_pack" options-sh="script/tool.sh img" desc="@string/mio_unsupported_image_warning" required="true" multiple="true"/>
-    </action>
+    <action><title>@string/mio_pack_image</title><set>script/tool.sh pack</set><param name="UIMGS" options-sh="script/tool.sh lsmdir" desc="@string/mio_multi_pack_detect" required="true" multiple="true"/><param name="dbfs" label="@string/mio_pack_method" desc="@string/mio_ext4_only"><option value="mkeimg">mke2fs+e2fsdroid</option><option value="make_ext4">make_ext4fs</option></param><param name="jxys" label="@string/mio_image_compression" type="switch" /><param name="del" label="@string/mio_delete_source" type="switch" /><param name="zhua" label="@string/mio_erofs_ext_convert" type="switch" /><param name="fixb" label="@string/mio_fix_build" desc="@string/mio_boot_only" type="switch" /><param name="Reading" label="@string/mio_partition_rw" desc="@string/mio_ext4_only"><option value="ro">@string/mio_read_only</option><option value="rw">@string/mio_read_write</option></param><param name="psize" label="@string/mio_pack_size" desc="@string/mio_ext4_only"><option value="auto">@string/mio_auto_size</option><option value="orig">@string/mio_original_img_size</option></param><param name="img_type" label="@string/mio_pack_format" desc="@string/mio_ext4_erofs_only"><option value="raw">raw</option><option value="sparse">sparse</option></param><param name="fze" label="@string/mio_erofs_compression_level" value="8" desc="@string/mio_erofs_only"/><param name="type" label="@string/mio_erofs_compression" desc="@string/mio_erofs_only"><option value="lz4hc">lz4hc</option><option value="lz4">lz4</option><option value="lzma">lzma</option><option value="deflate">deflate</option></param></action>
+    <action><title>@string/mio_pack_super</title><set>script/tool.sh packsuper</set><param name="type" label="@string/mio_pack_type"><option value="A">a_only</option><option value="AB">ab</option><option value="VAB">virtual_ab</option></param><param name="from" label="@string/mio_pack_format"><option value="sparse">sparse</option><option value="raw">raw</option></param><param name="super_size" required="true" value="12884901888" label="@string/mio_super_size" desc="@string/mio_super_size_desc"/><param name="super_group" required="true" value="main" label="@string/mio_dynamic_group" desc="@string/mio_dynamic_group_desc"/><param name="simg" title="@string/mio_choose_img_pack" options-sh="script/tool.sh img" desc="@string/mio_unsupported_image_warning" required="true" multiple="true"/></action>
 </group>
-
 <group title="@string/mio_group_convert">
-    <action>
-        <title>@string/mio_img_convert</title>
-        <set>script/tool.sh gszh</set>
-        <param name="del" label="@string/mio_delete_source" type="switch" />
-        <param name="gs" label="@string/mio_convert_format" desc="@string/mio_erofs_no_convert" >
-            <option value="dat" >dat</option>
-            <option value="br" >br</option>
-            <option value="sparse" >sparse</option>
-            <option value="raw" >raw</option>
-            <option value="zstd" >zstd</option>
-        </param>
-        <param name="brlv" required="true" value="3" label="@string/mio_br_level" type="seekbar" min="0" max="9" desc="@string/mio_compression_tradeoff"/>
-        <param name="zstdle" required="true" value="3" label="@string/mio_zstd_level" type="seekbar" min="0" max="9" desc="@string/mio_compression_tradeoff"/>
-        <param name="IMG" title="@string/mio_choose_img" options-sh="script/tool.sh img" desc="@string/mio_project_file_detect" required="true" multiple="true"/>
-    </action>
+    <action><title>@string/mio_img_convert</title><set>script/tool.sh gszh</set><param name="del" label="@string/mio_delete_source" type="switch"/><param name="gs" label="@string/mio_convert_format" desc="@string/mio_erofs_no_convert"><option value="dat">dat</option><option value="br">br</option><option value="sparse">sparse</option><option value="raw">raw</option><option value="zstd">zstd</option></param><param name="brlv" required="true" value="3" label="@string/mio_br_level" type="seekbar" min="0" max="9" desc="@string/mio_compression_tradeoff"/><param name="zstdle" required="true" value="3" label="@string/mio_zstd_level" type="seekbar" min="0" max="9" desc="@string/mio_compression_tradeoff"/><param name="IMG" title="@string/mio_choose_img" options-sh="script/tool.sh img" desc="@string/mio_project_file_detect" required="true" multiple="true"/></action>
 </group>
