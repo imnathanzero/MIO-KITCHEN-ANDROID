@@ -21,6 +21,7 @@ object LanguageManager {
             .edit()
             .putString(KEY_LANGUAGE, language)
             .apply()
+        updateResources(context, language)
     }
 
     fun getLanguage(context: Context): String {
@@ -45,6 +46,8 @@ object LanguageManager {
             @Suppress("DEPRECATION")
             configuration.locale = locale
         }
+        @Suppress("DEPRECATION")
+        context.resources.updateConfiguration(configuration, context.resources.displayMetrics)
         return context.createConfigurationContext(configuration)
     }
 }
